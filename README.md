@@ -14,7 +14,7 @@
 
 - [What Is This Project?](#what-is-this-project)
 - [System Architecture](#system-architecture)
-- [Why WBZ451? — Comparison with nRF52, ESP32, CC2652](#why-wbz451--comparison-with-nrf52-esp32-cc2652)
+- [Why WBZ451?](#why-wbz451)
 - [Why You Need It](#why-you-need-it)
 - [Application Use Cases](#application-use-cases)
 - [Hardware Used](#hardware-used)
@@ -64,23 +64,22 @@ The **Python desktop GUI** on the host receives, parses, and visualises the data
 
 ---
 
-## Why WBZ451? — Comparison with nRF52, ESP32, CC2652
+## Why WBZ451?
 
-| Feature | **Microchip WBZ451** | Nordic nRF52840 | Espressif ESP32 | TI CC2652R |
-|---|---|---|---|---|
-| **Bluetooth version** | 5.2 | 5.4 | 5.0 | 5.1 |
-| **2M PHY** | Yes | Yes | Yes | Yes |
-| **Coded PHY (long-range)** | Yes | Yes | No | No |
-| **Transparent UART profile** | Built-in (Microchip TRPS) | Requires custom profile | Requires custom | Requires custom |
-| **UART → BLE migration** | Drop-in: serial code unchanged | Requires BLE stack rework | Requires rework | Requires rework |
-| **IDE / framework** | MPLAB X + Harmony 3 | nRF Connect SDK + Zephyr | ESP-IDF / Arduino | Code Composer Studio |
-| **RTOS** | FreeRTOS (built-in) | Zephyr (mandatory) | FreeRTOS optional | TI-RTOS / FreeRTOS |
-| **Existing Microchip developer** | Zero learning curve | New toolchain required | New toolchain | New toolchain |
-| **Industrial grade** | Yes | Consumer to industrial | Consumer-focused | Industrial |
-| **Multi-role BLE** | Central + Peripheral + Broadcaster | Yes | Central or Peripheral | Yes |
-| **Security** | BLE SMP, AES-128 | BLE SMP, AES-128, TrustZone | BLE SMP, AES | BLE SMP, AES |
+The **WBZ451** is Microchip's Bluetooth 5.2 SoC built for developers who are already in the Microchip ecosystem — or anyone who wants industrial-grade BLE without a steep learning curve.
 
-**The key differentiator:** Microchip's **Transparent UART Profile (TRPS)** lets you treat BLE exactly like a serial UART. If your existing product already has UART-based communication, you can add wireless BLE connectivity to the WBZ451 without rewriting any application logic — something no competitor offers out of the box.
+| Capability | WBZ451 |
+|---|---|
+| **Bluetooth version** | 5.2 (2M PHY + Coded PHY long-range) |
+| **Transparent UART Profile (TRPS)** | Built-in — treat BLE like a serial UART, no BLE stack changes needed |
+| **IDE & framework** | MPLAB X + Harmony 3 — same toolchain as all other Microchip MCUs |
+| **RTOS** | FreeRTOS, integrated and pre-configured via Harmony 3 |
+| **Multi-role BLE** | Central + Peripheral + Broadcaster simultaneously |
+| **Security** | BLE SMP, AES-128 encryption, secure bonding |
+| **Range** | ~50–100 m at 2M PHY · ~300 m+ at Coded PHY (S8) |
+| **Industrial grade** | Yes — suitable for factory, field, and flight applications |
+
+**The standout feature:** Microchip's **Transparent UART Profile (TRPS)** means BLE behaves exactly like a wired UART from your application's point of view. If your existing design already sends data over serial, you can go wireless without rewriting a single line of application code.
 
 ---
 
