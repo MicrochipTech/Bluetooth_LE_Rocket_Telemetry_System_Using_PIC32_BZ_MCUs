@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../RocketGUI 2"
+		}
+	],
+	"settings": {
+		"terminal.integrated.stickyScroll.enabled": false
+	}
+}
