@@ -440,4 +440,4 @@ STEM electronics project · university IoT project · embedded systems tutorial 
 
 ---
 
-*© 2022–2024 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text.*
+*© 2026 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text.*
