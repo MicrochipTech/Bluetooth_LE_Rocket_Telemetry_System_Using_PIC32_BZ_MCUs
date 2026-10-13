@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arr-teal" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#00d4aa"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a9eff"/>
+    </marker>
+    <!-- Glow filters -->
+    <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-teal" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Gradients -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="wbz-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#cc0000"/>
+      <stop offset="100%" style="stop-color:#990000"/>
+    </linearGradient>
+    <linearGradient id="gui-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#238636"/>
+      <stop offset="100%" style="stop-color:#196127"/>
+    </linearGradient>
+    <linearGradient id="sensor-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f6feb"/>
+      <stop offset="100%" style="stop-color:#1158c7"/>
+    </linearGradient>
+    <linearGradient id="header-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8b0000"/>
+      <stop offset="30%" style="stop-color:#cc0000"/>
+      <stop offset="70%" style="stop-color:#cc0000"/>
+      <stop offset="100%" style="stop-color:#8b0000"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ═══ BACKGROUND ═══ -->
+  <rect width="960" height="520" fill="url(#bg-grad)" rx="14"/>
+  <!-- Subtle grid pattern -->
+  <g opacity="0.035" stroke="#ffffff" stroke-width="0.5">
+    <line x1="0" y1="80" x2="960" y2="80"/>
+    <line x1="0" y1="160" x2="960" y2="160"/>
+    <line x1="0" y1="240" x2="960" y2="240"/>
+    <line x1="0" y1="320" x2="960" y2="320"/>
+    <line x1="0" y1="400" x2="960" y2="400"/>
+    <line x1="0" y1="480" x2="960" y2="480"/>
+    <line x1="96" y1="0" x2="96" y2="520"/>
+    <line x1="192" y1="0" x2="192" y2="520"/>
+    <line x1="288" y1="0" x2="288" y2="520"/>
+    <line x1="384" y1="0" x2="384" y2="520"/>
+    <line x1="480" y1="0" x2="480" y2="520"/>
+    <line x1="576" y1="0" x2="576" y2="520"/>
+    <line x1="672" y1="0" x2="672" y2="520"/>
+    <line x1="768" y1="0" x2="768" y2="520"/>
+    <line x1="864" y1="0" x2="864" y2="520"/>
+  </g>
+
+  <!-- ═══ HEADER BAR ═══ -->
+  <rect x="0" y="0" width="960" height="72" fill="url(#header-grad)" rx="14"/>
+  <rect x="0" y="58" width="960" height="14" fill="#cc0000"/>
+  <!-- Microchip M logo placeholder (simplified) -->
+  <circle cx="44" cy="36" r="22" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+  <text x="44" y="42" fill="white" font-size="18" font-weight="900" text-anchor="middle" font-style="italic">M</text>
+  <!-- Title -->
+  <text x="510" y="30" fill="white" font-size="19" font-weight="700" text-anchor="middle" letter-spacing="0.3">Bluetooth LE Rocket Telemetry System</text>
+  <text x="510" y="54" fill="rgba(255,220,220,0.9)" font-size="12" text-anchor="middle" letter-spacing="0.2">Microchip WBZ451 (PIC32-BZ2)  ·  Bluetooth 5.2  ·  FreeRTOS  ·  MPLAB Harmony 3  ·  Python GUI</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- LEFT COLUMN — SENSOR NODE                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="18" y="90" width="272" height="390" fill="#161b22" rx="12" stroke="#30363d" stroke-width="1.5"/>
+  <!-- Column header -->
+  <rect x="18" y="90" width="272" height="34" fill="#21262d" rx="12"/>
+  <rect x="18" y="110" width="272" height="14" fill="#21262d"/>
+  <text x="154" y="112" fill="#f0f6fc" font-size="12" font-weight="700" text-anchor="middle">&#x1F680;  SENSOR NODE</text>
+
+  <!-- WBZ451 main block -->
+  <rect x="30" y="134" width="248" height="148" fill="url(#wbz-grad)" rx="10" filter="url(#glow-red)"/>
+  <!-- WBZ451 label -->
+  <text x="154" y="153" fill="white" font-size="13" font-weight="700" text-anchor="middle">WBZ451  SoC  (PIC32-BZ2)</text>
+  <!-- Divider -->
+  <line x1="42" y1="160" x2="266" y2="160" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <!-- Sub-feature pills -->
+  <rect x="42" y="166" width="224" height="21" fill="rgba(255,255,255,0.13)" rx="5"/>
+  <text x="154" y="181" fill="white" font-size="11" text-anchor="middle">&#x1F4E1;  Bluetooth 5.2 Stack  (2M / Coded PHY)</text>
+  <rect x="42" y="192" width="224" height="21" fill="rgba(255,255,255,0.13)" rx="5"/>
+  <text x="154" y="207" fill="white" font-size="11" text-anchor="middle">&#x2699;  FreeRTOS  +  MPLAB Harmony 3</text>
+  <rect x="42" y="218" width="224" height="21" fill="rgba(255,255,255,0.13)" rx="5"/>
+  <text x="154" y="233" fill="white" font-size="11" text-anchor="middle">&#x1F517;  Transparent UART Profile  (TRPS)</text>
+  <rect x="42" y="244" width="224" height="21" fill="rgba(255,255,255,0.13)" rx="5"/>
+  <text x="154" y="259" fill="white" font-size="11" text-anchor="middle">&#x1F50C;  SERCOM2  I&#xB2;C  Bus  (auto-detect)</text>
+
+  <!-- I2C bus line going down from WBZ -->
+  <line x1="154" y1="282" x2="154" y2="300" stroke="#00d4aa" stroke-width="2.5" stroke-dasharray="4,2"/>
+  <text x="162" y="295" fill="#00d4aa" font-size="10" font-weight="600">I&#xB2;C</text>
+
+  <!-- Sensor boxes -->
+  <rect x="30" y="300" width="113" height="58" fill="url(#sensor-grad)" rx="8"/>
+  <text x="86" y="317" fill="white" font-size="11" font-weight="700" text-anchor="middle">MPL3115A2</text>
+  <text x="86" y="331" fill="#b3d7ff" font-size="10" text-anchor="middle">Pressure  (kPa)</text>
+  <text x="86" y="345" fill="#b3d7ff" font-size="10" text-anchor="middle">Temperature  (°C)</text>
+
+  <rect x="165" y="300" width="113" height="58" fill="url(#sensor-grad)" rx="8"/>
+  <text x="221" y="317" fill="white" font-size="11" font-weight="700" text-anchor="middle">FXLS8974</text>
+  <text x="221" y="331" fill="#b3d7ff" font-size="10" text-anchor="middle">Accel  X / Y / Z  (g)</text>
+  <text x="221" y="345" fill="#b3d7ff" font-size="10" text-anchor="middle">&#xB1;2g  ·  12.5 Hz  ODR</text>
+
+  <!-- Protocol frame box -->
+  <rect x="30" y="372" width="248" height="32" fill="#21262d" rx="7" stroke="#30363d" stroke-width="1"/>
+  <text x="154" y="384" fill="#8b949e" font-size="10" text-anchor="middle">Telemetry Frame:</text>
+  <text x="154" y="397" fill="#00d4aa" font-size="11" font-family="'Courier New', Courier, monospace" text-anchor="middle">&lt; P , T , AX , AY , AZ \n\r &gt;</text>
+
+  <!-- Output label -->
+  <text x="154" y="460" fill="#58a6ff" font-size="11" font-weight="600" text-anchor="middle">BLE Peripheral  /  USB-UART</text>
+  <text x="154" y="475" fill="#484f58" font-size="10" text-anchor="middle">Streams continuously on connection</text>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- MIDDLE COLUMN — WIRELESS LINK              -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Section label -->
+  <text x="480" y="100" fill="#484f58" font-size="11" text-anchor="middle" font-weight="600">COMMUNICATION CHANNEL</text>
+
+  <!-- ─── BLE Primary Path ─── -->
+  <!-- Arrow line -->
+  <line x1="292" y1="215" x2="668" y2="215" stroke="#00d4aa" stroke-width="2.5" marker-end="url(#arr-teal)" filter="url(#glow-teal)"/>
+  <!-- Radio wave arcs around midpoint -->
+  <g transform="translate(451, 190)">
+    <path d="M0,12 Q14,-10 28,12" fill="none" stroke="#00d4aa" stroke-width="1.8" opacity="0.4"/>
+    <path d="M-7,12 Q21,-18 35,12" fill="none" stroke="#00d4aa" stroke-width="1.8" opacity="0.65"/>
+    <path d="M-14,12 Q28,-26 42,12" fill="none" stroke="#00d4aa" stroke-width="1.8" opacity="0.85"/>
+    <circle cx="14" cy="16" r="3" fill="#00d4aa"/>
+  </g>
+  <!-- BLE label pill -->
+  <rect x="362" y="194" width="156" height="42" fill="#0d1117" rx="8" stroke="#00d4aa" stroke-width="1.2"/>
+  <text x="440" y="211" fill="#00d4aa" font-size="13" font-weight="700" text-anchor="middle">&#x1F4E1;  BLE 5.2</text>
+  <text x="440" y="229" fill="#8b949e" font-size="10" text-anchor="middle">2M PHY  ·  Coded PHY  (long-range)</text>
+
+  <!-- Range indicators -->
+  <text x="480" y="255" fill="#6e7681" font-size="10" text-anchor="middle">2M PHY: ~50–100 m  open air</text>
+  <text x="480" y="268" fill="#6e7681" font-size="10" text-anchor="middle">Coded PHY (S8): ~300 m+</text>
+
+  <!-- ─── USB/UART Alternate Path ─── -->
+  <line x1="292" y1="300" x2="668" y2="300" stroke="#4a9eff" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-blue)"/>
+  <!-- USB label pill -->
+  <rect x="362" y="279" width="156" height="34" fill="#0d1117" rx="7" stroke="#4a9eff" stroke-width="1"/>
+  <text x="440" y="294" fill="#4a9eff" font-size="12" font-weight="600" text-anchor="middle">&#x1F50C;  USB / UART</text>
+  <text x="440" y="307" fill="#8b949e" font-size="10" text-anchor="middle">115200 baud  ·  wired  alternative</text>
+
+  <!-- Key differentiator badge -->
+  <rect x="342" y="340" width="276" height="44" fill="#1c2128" rx="8" stroke="#cc0000" stroke-width="1.5"/>
+  <text x="480" y="358" fill="#ff7b7b" font-size="11" font-weight="700" text-anchor="middle">&#x2B50;  Microchip Differentiator</text>
+  <text x="480" y="374" fill="#f0f6fc" font-size="10" text-anchor="middle">Transparent UART  =  drop-in serial replacement</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- RIGHT COLUMN — PC GROUND STATION           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="670" y="90" width="272" height="390" fill="#161b22" rx="12" stroke="#30363d" stroke-width="1.5"/>
+  <rect x="670" y="90" width="272" height="34" fill="#21262d" rx="12"/>
+  <rect x="670" y="110" width="272" height="14" fill="#21262d"/>
+  <text x="806" y="112" fill="#f0f6fc" font-size="12" font-weight="700" text-anchor="middle">&#x1F4BB;  PC GROUND STATION</text>
+
+  <!-- Python GUI block -->
+  <rect x="682" y="134" width="248" height="68" fill="url(#gui-grad)" rx="10"/>
+  <text x="806" y="153" fill="white" font-size="13" font-weight="700" text-anchor="middle">Python GUI  (app.py)</text>
+  <rect x="693" y="160" width="108" height="20" fill="rgba(255,255,255,0.15)" rx="5"/>
+  <text x="747" y="174" fill="white" font-size="10" text-anchor="middle">bleak  (BLE)</text>
+  <rect x="809" y="160" width="108" height="20" fill="rgba(255,255,255,0.15)" rx="5"/>
+  <text x="863" y="174" fill="white" font-size="10" text-anchor="middle">pyserial  (COM)</text>
+  <text x="806" y="196" fill="#b0e6b0" font-size="10" text-anchor="middle">tkinter  ·  matplotlib  ·  Windows / macOS / Linux</text>
+
+  <!-- 4 feature boxes in 2x2 grid -->
+  <!-- Strip Charts -->
+  <rect x="682" y="214" width="118" height="60" fill="url(#sensor-grad)" rx="8"/>
+  <text x="741" y="231" fill="white" font-size="11" font-weight="700" text-anchor="middle">&#x1F4C8;  Strip Charts</text>
+  <text x="741" y="246" fill="#b3d7ff" font-size="10" text-anchor="middle">P · T · AX · AY · AZ</text>
+  <text x="741" y="259" fill="#b3d7ff" font-size="10" text-anchor="middle">Real-time · 10 Hz</text>
+  <text x="741" y="269" fill="#7ab3e8" font-size="9" text-anchor="middle">200-sample window</text>
+
+  <!-- Altitude Chart -->
+  <rect x="812" y="214" width="118" height="60" fill="url(#sensor-grad)" rx="8"/>
+  <text x="871" y="231" fill="white" font-size="11" font-weight="700" text-anchor="middle">&#x1F3D4;  Altitude</text>
+  <text x="871" y="246" fill="#b3d7ff" font-size="10" text-anchor="middle">Barometric calc</text>
+  <text x="871" y="259" fill="#b3d7ff" font-size="10" text-anchor="middle">Peak tracking</text>
+  <text x="871" y="269" fill="#7ab3e8" font-size="9" text-anchor="middle">Baseline capture</text>
+
+  <!-- Raw Monitor -->
+  <rect x="682" y="284" width="118" height="60" fill="#6e40c9" rx="8"/>
+  <text x="741" y="301" fill="white" font-size="11" font-weight="700" text-anchor="middle">&#x1F4CB;  Raw Monitor</text>
+  <text x="741" y="316" fill="#d8b4fe" font-size="10" text-anchor="middle">Decoded frames</text>
+  <text x="741" y="329" fill="#d8b4fe" font-size="10" text-anchor="middle">Scrolling log</text>
+  <text x="741" y="339" fill="#c4a0fd" font-size="9" text-anchor="middle">Clear button</text>
+
+  <!-- CSV Logger -->
+  <rect x="812" y="284" width="118" height="60" fill="#6e40c9" rx="8"/>
+  <text x="871" y="301" fill="white" font-size="11" font-weight="700" text-anchor="middle">&#x1F4BE;  CSV Logger</text>
+  <text x="871" y="316" fill="#d8b4fe" font-size="10" text-anchor="middle">Timestamped data</text>
+  <text x="871" y="329" fill="#d8b4fe" font-size="10" text-anchor="middle">All 6 channels</text>
+  <text x="871" y="339" fill="#c4a0fd" font-size="9" text-anchor="middle">Per-session files</text>
+
+  <!-- Demo Mode banner -->
+  <rect x="682" y="356" width="248" height="38" fill="#b45309" rx="8"/>
+  <text x="806" y="372" fill="white" font-size="11" font-weight="700" text-anchor="middle">&#x1F3AE;  Demo Mode  (No Hardware Needed)</text>
+  <text x="806" y="386" fill="#fde68a" font-size="10" text-anchor="middle">Simulated rocket flight  ·  20-second profile  ·  CSV output</text>
+
+  <!-- Output label -->
+  <text x="806" y="460" fill="#58a6ff" font-size="11" font-weight="600" text-anchor="middle">Scan BLE  /  COM Port  &#x2192;  Connect  &#x2192;  Visualise</text>
+  <text x="806" y="475" fill="#484f58" font-size="10" text-anchor="middle">Cross-platform  ·  No mobile app required</text>
+
+  <!-- ═══ FOOTER ═══ -->
+  <rect x="0" y="497" width="960" height="23" fill="#161b22" rx="14"/>
+  <rect x="0" y="497" width="960" height="8" fill="#161b22"/>
+  <text x="480" y="513" fill="#484f58" font-size="10" text-anchor="middle">© Microchip Technology Inc.  ·  WBZ451 / PIC32-BZ2  ·  Bluetooth 5.2  ·  MPLAB Harmony 3  ·  FreeRTOS  ·  Open Source Reference Design</text>
+
+</svg>

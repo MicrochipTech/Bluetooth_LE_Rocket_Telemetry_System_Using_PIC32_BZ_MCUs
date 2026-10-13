@@ -13,11 +13,13 @@
 ## Table of Contents
 
 - [What Is This Project?](#what-is-this-project)
+- [System Architecture](#system-architecture)
 - [Why WBZ451? — Comparison with nRF52, ESP32, CC2652](#why-wbz451--comparison-with-nrf52-esp32-cc2652)
 - [Why You Need It](#why-you-need-it)
 - [Application Use Cases](#application-use-cases)
 - [Hardware Used](#hardware-used)
 - [Software Stack](#software-stack)
+- [Ground Station in Action](#ground-station-in-action)
 - [Project Structure](#project-structure)
 - [Launching the GUI — Step-by-Step](#launching-the-gui--step-by-step)
 - [Firmware — How to Build and Flash](#firmware--how-to-build-and-flash)
@@ -26,7 +28,6 @@
 - [Demo Mode — No Hardware Required](#demo-mode--no-hardware-required)
 - [Frequently Asked Questions](#frequently-asked-questions)
 - [Related Topics and SEO Keywords](#related-topics-and-seo-keywords)
-- [Screenshots](#screenshots)
 
 ---
 
@@ -48,6 +49,18 @@ The **Python desktop GUI** on the host receives, parses, and visualises the data
 - Peak altitude tracking with user-defined baseline capture
 - Scrolling raw data monitor
 - One-click CSV data logging
+
+---
+
+## System Architecture
+
+<p align="center">
+  <img src="Images/block_diagram.svg" alt="System Architecture Block Diagram — WBZ451 sensor node streams BLE 5.2 telemetry to Python PC ground station" width="960"/>
+</p>
+
+<p align="center">
+  <em>WBZ451 reads MPL3115A2 (pressure/temperature) and FXLS8974 (accelerometer) over I²C · encodes telemetry frames · streams over Bluetooth 5.2 or USB to the Python ground station GUI</em>
+</p>
 
 ---
 
@@ -165,6 +178,18 @@ Demonstrates Microchip's full BLE SDK, FreeRTOS integration, MPLAB Harmony 3 gen
 | Serial / COM | **pyserial** 3.5+ |
 | Data export | **csv** (standard library) |
 | Packaging | **PyInstaller** (`.spec` file included for `.exe` generation) |
+
+---
+
+## Ground Station in Action
+
+<p align="center">
+  <img src="Images/Rocket_Telemetry_GUI.png" alt="Rocket Telemetry Ground Station GUI — all four windows open during Demo Mode: strip charts, altitude chart, and raw data monitor" width="900"/>
+</p>
+
+<p align="center">
+  <em>All four windows running in Demo Mode — Port &amp; BLE Connector (top-left) · Strip Chart with live P/T/AX/AY/AZ plots (top-right) · Altitude chart peaking at 327 m (bottom-left) · Raw Data Monitor with decoded telemetry frames (bottom-right)</em>
+</p>
 
 ---
 
@@ -415,14 +440,4 @@ STEM electronics project · university IoT project · embedded systems tutorial 
 
 ---
 
-## Screenshots
-
-### Ground Station GUI — Live Demo Mode
-
-![Rocket Telemetry GUI — Strip Chart, Altitude, and Raw Data Monitor running in Demo Mode](Images/Rocket_Telemetry_GUI.png)
-
-*All four windows visible: Port and BLE Connector (top-left), Strip Chart with live P/T/AX/AY/AZ plots (top-right), Altitude chart reaching 327 m peak (bottom-left), Raw Data Monitor showing decoded ASCII telemetry frames (bottom-right).*
-
----
-
-*© 2026 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text.*
+*© 2022–2024 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text.*
