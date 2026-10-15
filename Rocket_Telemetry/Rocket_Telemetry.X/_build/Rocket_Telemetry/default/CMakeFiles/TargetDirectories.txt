@@ -1,0 +1,4 @@
+D:/Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/Rocket_Telemetry/Rocket_Telemetry.X/_build/Rocket_Telemetry/default/CMakeFiles/Rocket_Telemetry_default_default_XC32_compile.dir
+D:/Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/Rocket_Telemetry/Rocket_Telemetry.X/_build/Rocket_Telemetry/default/CMakeFiles/Rocket_Telemetry_default_image_6J8mD2xZ.dir
+D:/Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/Rocket_Telemetry/Rocket_Telemetry.X/_build/Rocket_Telemetry/default/CMakeFiles/edit_cache.dir
+D:/Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/Rocket_Telemetry/Rocket_Telemetry.X/_build/Rocket_Telemetry/default/CMakeFiles/rebuild_cache.dir

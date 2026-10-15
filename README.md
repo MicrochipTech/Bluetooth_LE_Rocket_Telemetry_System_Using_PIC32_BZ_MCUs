@@ -1,442 +1,339 @@
-# Bluetooth LE Rocket Telemetry System Using Microchip WBZ451 / PIC32-BZ2
+# Bluetooth LE Rocket Telemetry System Using PIC32 BZ2 MCUs
 
-> **Real-time wireless sensor telemetry over Bluetooth 5.2 — pressure, temperature, and 3-axis acceleration streamed from a WBZ451 SoC to a Python desktop GUI over BLE or USB, with live strip charts, barometric altitude, and CSV data logging.**
+[![PIC32 BZ2](https://img.shields.io/badge/PIC32%20BZ2-Wireless%20MCU-CC0000)](https://www.microchip.com/en-us/products/microcontrollers/32-bit-mcus/pic32-sam/pic32-bz2)
+[![Bluetooth LE](https://img.shields.io/badge/Bluetooth%20LE-Wireless-0066CC)](https://www.microchip.com/en-us/products/wireless-connectivity/bluetooth-low-energy)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB)](https://www.python.org/)
+![License](https://img.shields.io/badge/License-Microchip-lightgrey)
 
-[![Microchip Technology](https://img.shields.io/badge/Microchip-WBZ451-red)](https://www.microchip.com/en-us/product/WBZ451)
-[![Bluetooth 5.2](https://img.shields.io/badge/Bluetooth-5.2-blue)](https://www.bluetooth.com/learn-about-bluetooth/tech-overview/)
-[![FreeRTOS](https://img.shields.io/badge/RTOS-FreeRTOS-green)](https://www.freertos.org/)
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-yellow)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-Microchip_Standard-lightgrey)](https://www.microchip.com/)
+**Real-time wireless sensor telemetry using the PIC32 BZ2 family, with pressure, temperature and three-axis acceleration displayed through a Python desktop dashboard over Bluetooth LE or serial.**
 
----
+> Engineering demonstration and development reference for real-time wireless sensor telemetry. Validate the complete hardware, firmware, radio and mechanical system before use in any field test. This project is not a certified flight-control or safety system.
 
 ## Table of Contents
 
-- [What Is This Project?](#what-is-this-project)
+- [Overview](#overview)
 - [System Architecture](#system-architecture)
-- [Why WBZ451?](#why-wbz451)
-- [Why You Need It](#why-you-need-it)
-- [Application Use Cases](#application-use-cases)
-- [Hardware Used](#hardware-used)
-- [Software Stack](#software-stack)
-- [Ground Station in Action](#ground-station-in-action)
-- [Project Structure](#project-structure)
-- [Launching the GUI — Step-by-Step](#launching-the-gui--step-by-step)
-- [Firmware — How to Build and Flash](#firmware--how-to-build-and-flash)
-- [Telemetry Protocol](#telemetry-protocol)
-- [GUI Features](#gui-features)
-- [Demo Mode — No Hardware Required](#demo-mode--no-hardware-required)
+- [Hardware and Software](#hardware-and-software)
+- [Repository Organization](#repository-organization)
+- [Telemetry Data Format](#telemetry-data-format)
+- [Firmware Setup](#firmware-setup)
+- [Desktop Dashboard Setup](#desktop-dashboard-setup)
+- [Running the Demonstration](#running-the-demonstration)
+- [Troubleshooting](#troubleshooting)
 - [Frequently Asked Questions](#frequently-asked-questions)
-- [Related Topics and SEO Keywords](#related-topics-and-seo-keywords)
+- [References](#references)
 
----
+## Overview
 
-## What Is This Project?
+The embedded application uses the PIC32 BZ2 family to acquire pressure and temperature data from an MPL3115A2 and three-axis acceleration data from an FXLS8974. The demonstrated hardware uses the WBZ451 Curiosity Development Board. Sensor data is formatted by the firmware and made available through a Bluetooth LE transparent data service or a serial connection.
 
-This project demonstrates a complete, end-to-end **wireless rocket telemetry system** built on the **Microchip WBZ451 (PIC32-BZ2)** Bluetooth 5.2 SoC. It is a production-quality reference design for any application that needs to stream multi-sensor data wirelessly from an embedded node to a PC in real time.
+The Python desktop dashboard receives the sensor data, displays a raw-data view and real-time charts, calculates altitude from pressure and temperature, tracks peak altitude, and records measurements to CSV. The dashboard is primarily validated on Windows. macOS and Linux may also be supported, but they have not been formally validated for this project.
 
-The **WBZ451 firmware** reads two sensors over I2C:
+The PIC32 BZ2 family is also available in a high-output-power variant for applications that require longer-range wireless measurements. The family supports 2M PHY for higher-throughput operation and LE Coded PHY for extended-range operation.
 
-- **MPL3115A2** (NXP) — barometric pressure and temperature
-- **FXLS8974** (NXP) — 3-axis accelerometer (±2 g, 12.5 Hz)
+## Key Capabilities
 
-It encodes readings into compact ASCII frames and streams them continuously to a paired host using Microchip's **Transparent UART Profile (TRPS)** over BLE 5.2, or directly over a USB COM port when a USB-UART bridge is used.
-
-The **Python desktop GUI** on the host receives, parses, and visualises the data:
-
-- Real-time 5-channel strip charts (pressure, temperature, AX, AY, AZ)
-- Barometric altitude calculated live from pressure and temperature
-- Peak altitude tracking with user-defined baseline capture
-- Scrolling raw data monitor
-- One-click CSV data logging
-
----
+- Pressure and temperature acquisition using the MPL3115A2
+- Three-axis acceleration acquisition using the FXLS8974
+- Bluetooth LE and serial telemetry transport
+- Live raw-data monitoring
+- Five-channel strip charts for pressure, temperature, AX, AY and AZ
+- A 200-sample rolling chart window
+- Configurable chart ranges and Auto Range scaling
+- Altitude calculation from pressure and temperature
+- Launch-site baseline capture and peak-altitude tracking
+- Timestamped CSV data logging without overwriting earlier logs
+- Hardware-independent Demo Mode with a simulated 20-second flight profile
 
 ## System Architecture
 
-<p align="center">
-  <img src="Images/block_diagram.svg" alt="System Architecture Block Diagram — WBZ451 sensor node streams BLE 5.2 telemetry to Python PC ground station" width="960"/>
-</p>
+![System architecture diagram showing sensors, firmware, transport and dashboard layers.](Images/architecture.png)
 
-<p align="center">
-  <em>WBZ451 reads MPL3115A2 (pressure/temperature) and FXLS8974 (accelerometer) over I²C · encodes telemetry frames · streams over Bluetooth 5.2 or USB to the Python ground station GUI</em>
-</p>
+## Hardware and Software
 
----
+### Hardware Components
 
-## Why WBZ451?
-
-The **WBZ451** is Microchip's Bluetooth 5.2 SoC built for developers who are already in the Microchip ecosystem — or anyone who wants industrial-grade BLE without a steep learning curve.
-
-| Capability | WBZ451 |
-|---|---|
-| **Bluetooth version** | 5.2 (2M PHY + Coded PHY long-range) |
-| **Transparent UART Profile (TRPS)** | Built-in — treat BLE like a serial UART, no BLE stack changes needed |
-| **IDE & framework** | MPLAB X + Harmony 3 — same toolchain as all other Microchip MCUs |
-| **RTOS** | FreeRTOS, integrated and pre-configured via Harmony 3 |
-| **Multi-role BLE** | Central + Peripheral + Broadcaster simultaneously |
-| **Security** | BLE SMP, AES-128 encryption, secure bonding |
-| **Range** | ~50–100 m at 2M PHY · ~300 m+ at Coded PHY (S8) |
-| **Industrial grade** | Yes — suitable for factory, field, and flight applications |
-
-**The standout feature:** Microchip's **Transparent UART Profile (TRPS)** means BLE behaves exactly like a wired UART from your application's point of view. If your existing design already sends data over serial, you can go wireless without rewriting a single line of application code.
-
----
-
-## Why You Need It
-
-| Challenge | How This Project Solves It |
-|---|---|
-| Need wireless sensor data from a moving vehicle (rocket, drone, UAV) | Bluetooth 5.2 removes wires; WBZ451 handles the full certified BLE stack |
-| Want live telemetry on a PC without writing a mobile app | Python GUI runs on Windows, macOS, or Linux with a single command |
-| Need to log flight data for post-flight analysis | One-click CSV logging captures every frame with millisecond timestamps |
-| Want to evaluate Microchip WBZ451 / PIC32-BZ2 for a product | Fully working MPLAB Harmony 3 firmware with FreeRTOS — production-ready starting point |
-| Need a demo that runs without hardware | Built-in Demo Mode simulates a full rocket flight profile with real sensor physics |
-| Already use Microchip PIC / SAME / SAMD in production | Zero toolchain change: MPLAB X, XC32, Harmony 3 — same ecosystem |
-
----
-
-## Application Use Cases
-
-This architecture applies directly to a wide range of real-world products and projects:
-
-### Rocketry / High-Power Rocketry (HPR)
-Monitor altitude, peak G-force, and flight phase (boost, coast, apogee, recovery) wirelessly. Log data for post-flight analysis and Tripoli/NAR certification documentation. Replace wired data recorders with a BLE node.
-
-### Drone / UAV Telemetry
-Stream IMU (accelerometer) and barometric altitude from a drone or fixed-wing UAV to a ground station over Bluetooth 5.2. Low latency 2M PHY for live monitoring; Coded PHY (S8) for extended range operations.
-
-### Weather Balloon / High-Altitude Balloon (HAB)
-Log pressure, temperature, and altitude throughout ascent and descent. Capture peak altitude. Download data live during line-of-sight phase via BLE, fall back to logged CSV for the full flight.
-
-### Industrial IoT — Predictive Maintenance
-Mount the WBZ451 sensor node on rotating machinery. Stream vibration (accelerometer) and temperature data to a PC monitoring station. Detect early-stage bearing failure, misalignment, or imbalance before catastrophic failure — reducing unplanned downtime in smart factories and Industry 4.0 deployments.
-
-### Industrial Asset Tracking
-Use BLE advertising + RSSI to locate assets on a factory floor, warehouse, or construction site. WBZ451's multi-role capability means a single device can be both a sensor node and a BLE scanner/gateway simultaneously.
-
-### Environmental Monitoring
-Deploy sensor nodes for air quality monitoring, climate monitoring, precision agriculture, or cold-chain temperature logging. The TRPS transparent channel means cloud integration (MQTT, AWS IoT, Azure IoT Hub) requires only a UART-to-cloud bridge.
-
-### Wearable Devices / Health Monitoring
-Adapt the accelerometer pipeline for step counting, fall detection, or impact monitoring in sports equipment or personal safety wearables. BLE 5.2 low-power modes extend battery life for coin-cell or small LiPo applications.
-
-### Structural Health Monitoring
-Attach wireless sensor nodes to bridges, pipelines, or buildings. Stream vibration and environmental data continuously. WBZ451's Coded PHY extends range through walls and structural materials.
-
-### Educational STEM / University Projects
-Teach students about embedded C, RTOS, BLE communication, sensor integration, barometric altitude, and real-time data visualisation — with a fully working hardware+software demo that needs no prior BLE experience to run.
-
-### IoT Sensor Node Rapid Prototyping
-The Transparent UART Profile acts as a generic serial-over-BLE channel. Swap any I2C/SPI/UART sensor in the firmware without touching the BLE stack or the GUI. Compress prototype-to-demo time from weeks to hours.
-
-### Consumer Electronics Reference Design
-Demonstrates Microchip's full BLE SDK, FreeRTOS integration, MPLAB Harmony 3 generated drivers, I2C sensor patterns, and power management — ready to carry forward into a product.
-
----
-
-## Hardware Used
-
-| Component | Part Number | Role |
+| Component | Part / Platform | Role |
 |---|---|---|
-| BLE SoC / MCU | **Microchip WBZ451** (PIC32-BZ2 family) | Runs firmware, BLE 5.2 stack, reads sensors over I2C |
-| Pressure + Temperature Sensor | **NXP MPL3115A2** | Barometric pressure (Pa, Q18.2 format) and temperature (°C) |
-| 3-Axis Accelerometer | **NXP FXLS8974** | Acceleration X/Y/Z in ±2 g range, 12.5 Hz ODR, 16-bit output |
-| I2C Bus | SERCOM2 (WBZ451) | Both sensors on shared I2C bus |
-| PC / Laptop | Windows / macOS / Linux | Runs the Python ground station GUI |
-| BLE transport | Integrated in WBZ451 | 2.4 GHz Bluetooth 5.2; 2M PHY or Coded PHY |
-| USB-UART bridge (optional) | CP2102 / CH340 / FTDI | Wired COM port alternative for development and debugging |
+| Wireless MCU development board | WBZ451 Curiosity Development Board | Runs the PIC32 BZ2 firmware, reads the sensors and provides Bluetooth LE or serial telemetry |
+| Pressure and temperature sensor | MPL3115A2, I2C address `0x60` | Measures barometric pressure and temperature |
+| Three-axis accelerometer | FXLS8974, I2C address `0x18` | Measures acceleration on the X, Y and Z axes; configured for a ±2 g range and 12.5 Hz output data rate |
+| I2C connection | Shared sensor bus | Connects both sensors to the development board; requires appropriate power, ground, wiring and pull-ups |
+| Host computer | Windows PC primarily; macOS or Linux potentially supported | Runs the Python desktop dashboard |
+| Bluetooth adapter | Bluetooth 4.0 or later | Provides Bluetooth LE connectivity when the host does not include a compatible adapter |
+| Serial interface | Compatible USB-to-UART bridge, when required | Provides the wired telemetry connection at 115200 baud |
+| Programming connection | USB | Connects the development board to the development host |
 
-> **Sensor detection:** The firmware auto-detects both sensors at startup via I2C WHO_AM_I register verification (`0xC4` for MPL3115A2, `0x86`/`0x84` for FXLS8974). If either sensor is missing, the firmware reports the failure and halts sensor polling gracefully.
+The table below lists the I2C connections between the WBZ451 Curiosity Development Board and the two sensors. Confirm the exact pin numbers against the WBZ451 Curiosity Board schematic and the firmware I2C peripheral configuration before wiring.
 
----
+| Signal | WBZ451 Curiosity Pin | MPL3115A2 | FXLS8974 | Notes |
+|---|---|---|---|---|
+| 3.3 V | 3.3 V supply | VDD (pin 8) | VDD (pin 1) | Both sensors require a 3.3 V supply |
+| GND | GND | GND (pin 5) | GND (pin 8) | Common ground |
+| SCL | I2C clock (verify pin) | SCL (pin 3) | SCL (pin 2) | 4.7 kΩ pull-up to 3.3 V required |
+| SDA | I2C data (verify pin) | SDA (pin 4) | SDA (pin 3) | 4.7 kΩ pull-up to 3.3 V required |
+| INT | GPIO (optional) | INT1 (pin 6) | INT1 (pin 5) | Interrupt output; leave unconnected if polling is used |
 
-## Software Stack
+Both sensors share the same I2C bus. The MPL3115A2 uses address `0x60` and the FXLS8974 uses address `0x18`. Confirm the pull-up resistor values against the actual bus capacitance and clock frequency used in the firmware.
 
-### Firmware (WBZ451)
+At startup, the firmware verifies both sensors through their identity registers. The expected identity value is `0xC4` for the MPL3115A2 and `0x86` or `0x84` for the FXLS8974. If either sensor is not detected, the firmware reports the failure and stops sensor polling gracefully.
+
+### Firmware Software Stack
 
 | Component | Details |
 |---|---|
-| IDE | **MPLAB X IDE** (free, Windows/macOS/Linux) |
-| MCU Framework | **MPLAB Harmony 3** (generated peripheral drivers, middleware, BLE stack integration) |
-| RTOS | **FreeRTOS** (task scheduling, queue-based event handling) |
-| BLE Stack | **Microchip BLE SDK for PIC32-BZ2** (Bluetooth 5.2 certified) |
-| BLE Profile | **Transparent UART Profile Server (TRPS)** — serial-over-BLE with no application-layer changes |
-| Compiler | XC32 |
 | Language | C |
-| Project file | `Rocket_Telemetry/Rocket_Telemetry.X/` |
+| Framework | MPLAB Harmony 3 |
+| RTOS | FreeRTOS |
+| IDE | MPLAB X IDE |
+| Compiler | XC32 |
+| Target family | PIC32 BZ2 |
+| Demonstrated board | WBZ451 Curiosity Development Board |
 
-### Ground Station GUI
+Install tool, device-pack and Harmony component versions that match the firmware project configuration.
+
+### Desktop Software Stack
 
 | Component | Details |
 |---|---|
-| Language | Python 3.9+ |
-| GUI Framework | **tkinter** (standard library, no extra install) |
-| Charts | **matplotlib** (embedded via `FigureCanvasTkAgg`) |
-| BLE | **bleak** 0.22+ (cross-platform BLE library using OS-native BLE stack) |
-| Serial / COM | **pyserial** 3.5+ |
-| Data export | **csv** (standard library) |
-| Packaging | **PyInstaller** (`.spec` file included for `.exe` generation) |
+| Language | Python 3.10 or later |
+| GUI | Tkinter |
+| Charts | Matplotlib |
+| Bluetooth LE | Bleak |
+| Serial | pySerial |
+| Image support | Pillow dependency status pending reviewer confirmation |
+| Packaging | An included `app.spec` file may support creating a standalone Windows executable; this workflow has not yet been confirmed for the current project |
 
----
-
-## Ground Station in Action
-
-<p align="center">
-  <img src="Images/Rocket_Telemetry_GUI.png" alt="Rocket Telemetry Ground Station GUI — all four windows open during Demo Mode: strip charts, altitude chart, and raw data monitor" width="900"/>
-</p>
-
-<p align="center">
-  <em>All four windows running in Demo Mode — Port &amp; BLE Connector (top-left) · Strip Chart with live P/T/AX/AY/AZ plots (top-right) · Altitude chart peaking at 327 m (bottom-left) · Raw Data Monitor with decoded telemetry frames (bottom-right)</em>
-</p>
-
----
-
-## Project Structure
-
-```
-Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/
-│
-├── Rocket_Telemetry/                    ← WBZ451 firmware (MPLAB X)
-│   ├── Rocket_Telemetry.X/              ← MPLAB X project files
-│   └── src/
-│       ├── app.c / app.h                ← Sensor init (MPL3115A2 + FXLS8974), state machine
-│       ├── app_ble/                     ← BLE event handlers, TRPS handler, utility
-│       ├── app_trps.c / app_trps.h      ← Transparent UART Profile server
-│       └── config/default/              ← Harmony 3 generated BLE stack, FreeRTOS config
-│
-├── Rocket_Telemetry_GUI/                ← Python ground station GUI
-│   ├── app.py                           ← All GUI + BLE + serial logic (~1500 lines)
-│   ├── requirements.txt                 ← bleak, pyserial
-│   ├── app.spec                         ← PyInstaller .exe build spec
-│   ├── Microchip_logo.png               ← Footer logo
-│   └── rocket.ico / rocket.png          ← App icons
-│
-└── Images/
-    └── Rocket_Telemetry_GUI.png         ← GUI screenshot
-```
-
----
-
-## Launching the GUI — Step-by-Step
-
-### Prerequisites
-
-- Python 3.9 or later — download from [python.org](https://www.python.org/downloads/)
-- The GUI folder at your chosen path (e.g., `d:\RocketGUI 2\RocketGUI`)
-- For BLE: a PC with a Bluetooth 4.0+ adapter (built-in or USB dongle)
-- For COM port: a USB-UART adapter connected to the WBZ451 UART pins
-
-### Step 1 — Open a Terminal
-
-**Windows:** Press `Win + R` → type `cmd` → press Enter.
-
-### Step 2 — Navigate to the GUI Folder
-
-```bat
-cd "d:\RocketGUI 2\RocketGUI"
-```
-
-### Step 3 — Install Python Dependencies
-
-```bat
-pip install -r requirements.txt
-pip install matplotlib
-```
-
-> Run this once. If you see "Requirement already satisfied", that is fine.
-
-### Step 4 — Launch the GUI
-
-```bat
-python app.py
-```
-
-The **Port and BLE Connector** main window opens immediately.
-
-### Step 5 — Connect to the WBZ451
-
-**Via Bluetooth BLE:**
-1. Select **Bluetooth BLE** under Transport.
-2. Click **Scan BLE** — devices appear within a few seconds.
-3. Select your WBZ451 device (e.g., `BLE_UART_DEMO`).
-4. Click **Connect**.
-
-**Via USB COM Port:**
-1. Select **COM Port** under Transport.
-2. Click **Scan COM** — your port appears (e.g., `COM15`).
-3. Confirm Baud is `115200`.
-4. Select the port and click **Connect**.
-
-### Step 6 — Open Telemetry Windows
-
-After connecting, use the **Windows** row of buttons:
-
-| Button | Opens |
-|---|---|
-| Raw On/Off | Scrolling view of decoded telemetry frames |
-| Chart On/Off | 5-channel strip chart: Pressure, Temperature, AX, AY, AZ |
-| Altitude On/Off | Altitude chart with peak tracking and baseline capture |
-
-### Step 7 — (Optional) Log Data to CSV
-
-Click **Start Log** to write all telemetry to a timestamped `.csv` file in the GUI folder. Click **Stop Log** to close the file safely.
-
----
-
-## Firmware — How to Build and Flash
-
-1. Install **MPLAB X IDE** and **XC32 compiler** — both free from [microchip.com/mplab](https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide).
-2. Open `Rocket_Telemetry/Rocket_Telemetry.X/` as an existing MPLAB X project.
-3. Select **WBZ451** as the target device.
-4. Build the project (`F11`).
-5. Connect your WBZ451 board via the on-board PKOB debugger/programmer or an external MPLAB PICkit 4 / ICD 5.
-6. Flash the device (`F6` — Make and Program Device).
-
-After programming, the WBZ451 will:
-- Auto-detect the MPL3115A2 and FXLS8974 over I2C.
-- Begin BLE advertising as a Transparent UART peripheral.
-- Stream `<P,T,AX,AY,AZ\n\r>` frames continuously once a central (your PC) connects.
-
-> **Note for wired debugging:** The firmware also streams data on the SERCOM UART at 115200 baud. Connect a USB-UART adapter to the WBZ451 TX/RX pins to use the GUI without BLE.
-
----
-
-## Telemetry Protocol
-
-The WBZ451 transmits sensor data as **framed ASCII** over BLE Transparent UART (or UART):
-
-```
-<P,T,AX,AY,AZ\n\r>
-```
-
-| Field | Sensor | Unit | Example |
-|---|---|---|---|
-| `P` | MPL3115A2 | kPa | `101.325` |
-| `T` | MPL3115A2 | °C | `24.500` |
-| `AX` | FXLS8974 | g | `0.012` |
-| `AY` | FXLS8974 | g | `-0.005` |
-| `AZ` | FXLS8974 | g | `1.001` |
-
-**Frame boundaries:** `<` marks the start; `\n\r` marks the end. The GUI buffers the raw byte stream and extracts complete frames, automatically discarding partial frames from connection startup.
-
-**Altitude calculation** — hypsometric / barometric formula:
-
-```
-altitude_m = (R × T_K / g) × ln(P0 / P)
-
-where:
-  R  = 287.05  J/(kg·K)  dry air specific gas constant
-  T_K = temperature in Kelvin (T_°C + 273.15)
-  g  = 9.80665 m/s²
-  P0 = 101325  Pa  sea-level standard pressure
-  P  = measured pressure in Pa
-```
-
----
-
-## GUI Features
+#### Desktop Dashboard
 
 | Feature | Description |
 |---|---|
-| **BLE scan + connect** | Discovers all nearby BLE peripherals; subscribes to all notify/indicate characteristics automatically |
-| **COM port scan + connect** | Auto-discovers available COM ports; supports any baud rate |
-| **Strip chart — 5 channels** | Real-time scrolling plots, 200-sample rolling window, configurable Y-axis min/max per channel |
-| **Auto Range** | One-click Y-axis scaling based on actual data range |
-| **Altitude chart** | Barometric altitude in metres; peak altitude label; "Capture Start" zeroes the baseline for relative altitude |
-| **Raw data monitor** | Scrolling decoded frame log; Clear button |
-| **CSV logging** | Columns: `Timestamp, P_kPa, T_degC, AX_g, AY_g, AZ_g, Altitude_m`; new file per session |
-| **Demo mode** | Fully simulated rocket flight — no hardware needed |
-| **Clean disconnect** | Stops BLE notifications properly, closes sub-windows, flushes log file |
+| Raw-data view | Displays decoded telemetry frames as they are received |
+| Five-channel strip chart | Displays pressure, temperature and three-axis acceleration using a 200-sample rolling window |
+| Configurable chart ranges | Supports manual Y-axis range settings |
+| Auto Range | Automatically scales the chart Y-axis based on the data range |
+| Calculated altitude | Derives altitude from pressure and temperature; the detailed equation is not included in this README |
+| Launch-site baseline | `Capture Start` establishes the launch-site baseline used to display relative altitude |
+| Peak-altitude tracking | Displays the highest calculated relative altitude observed during the run |
+| CSV logging | Records timestamp, pressure, temperature, acceleration and altitude to a new timestamped CSV file for each logging session |
+| Demo Mode | Runs a simulated 20-second ascent, apogee and descent profile without hardware |
 
----
+![Python desktop dashboard showing live telemetry data.](Images/Rocket_Telemetry_GUI.png)
 
-## Demo Mode — No Hardware Required
+*Python desktop dashboard showing live telemetry data.*
 
-Click **Demo Start** from the main window to run a simulated rocket flight without any hardware:
+## Repository Organization
 
-1. A 200-row flight CSV is generated internally using real barometric physics.
-2. Raw Data Monitor, Strip Chart, and Altitude windows open automatically.
-3. One telemetry frame plays every 100 ms (10 Hz) over 20 seconds.
-4. **Flight profile:** boost phase (0–5 s, high AZ ~3.5 g) → coast phase (5–10 s) → apogee (~327 m / 1073 ft at t=12 s) → descent back to ground.
-5. Demo stops automatically; CSV file is saved to disk.
+```text
+Bluetooth-LE-Rocket-Telemetry-System-Using-PIC32-BZ-MCUs/
+|
+|-- Rocket_Telemetry/
+|   |-- Rocket_Telemetry.X/       MPLAB X firmware project
+|   |-- application source        Sensor initialization and application logic
+|   |-- Bluetooth LE service code Transparent data-service implementation
+|   `-- Harmony configuration     Generated Harmony and FreeRTOS configuration
+|
+|-- Rocket_Telemetry_GUI/
+|   |-- app.py                    Desktop dashboard entry point
+|   |-- requirements.txt          Python dependencies
+|   |-- app.spec                  Potential PyInstaller packaging specification
+|   `-- images and application icons
+|
+`-- Images/                       README and project images
+```
 
-**Ideal for:** trade show demonstrations, classroom teaching, GUI evaluation before hardware is ready, and user training.
+## Telemetry Data Format
 
----
+The dashboard expects five comma-separated floating-point values in this order:
+
+```text
+P,T,AX,AY,AZ
+```
+
+Example values:
+
+```text
+101.325,24.500,0.010,-0.020,1.002
+```
+
+| Field | Measurement | Unit | Example |
+|---|---|---:|---:|
+| `P` | Pressure | kPa | `101.325` |
+| `T` | Temperature | °C | `24.500` |
+| `AX` | X-axis acceleration | g | `0.010` |
+| `AY` | Y-axis acceleration | g | `-0.020` |
+| `AZ` | Z-axis acceleration | g | `1.002` |
+
+The five values are enclosed by frame delimiters before transmission. The exact delimiters and line-ending byte sequence remain subject to source-level verification. The dashboard buffers incoming data and ignores incomplete or malformed frames until a complete valid frame is available.
+
+CSV logs use these columns:
+
+```text
+Timestamp, P_kPa, T_degC, AX_g, AY_g, AZ_g, Altitude_m
+```
+
+The timestamp format and time basis are intentionally not specified here.
+
+## Firmware Setup
+
+### Prerequisites
+
+- MPLAB X IDE
+- XC32 compiler
+- MPLAB Code Configurator and MPLAB Harmony 3 wireless packages that match the firmware project configuration
+- PIC32 BZ2 device pack that matches the firmware project configuration
+- WBZ451 Curiosity Development Board
+- MPL3115A2 and FXLS8974 sensor connections
+- Supported programming/debugging hardware:
+  - On-board debugger/programmer
+  - MPLAB PICkit 4
+  - MPLAB ICD 5
+
+### Build and Program
+
+1. Open `Rocket_Telemetry/Rocket_Telemetry.X/` as an existing MPLAB X project.
+2. Confirm that the installed device pack, XC32 compiler, MPLAB Code Configurator and Harmony 3 component versions match the project configuration.
+3. Confirm the configured I2C bus, sensor power, pull-ups, console instance and Bluetooth advertising configuration.
+4. Use **Build Project** to compile the firmware.
+5. Resolve any generated-code version differences before programming the target.
+6. If required after MCC or Harmony code generation, apply the documented FreeRTOS idle-hook update so the idle hook calls `app_idle_task()`. Refer to `app_user_edits.c` if that file is included in the published project.
+7. Program the WBZ451 Curiosity Development Board using **Make and Program Device** and a supported programmer/debugger.
+
+### Verify Telemetry
+
+1. Power the programmed target and verify that both sensors pass startup detection.
+2. Confirm that the target advertises as `BLE_UART_DEMO` for Bluetooth LE operation.
+3. For a wired test, connect the serial interface and use 115200 baud.
+4. Verify that complete five-value telemetry frames are produced and accepted by the dashboard.
+
+## Desktop Dashboard Setup
+
+### Prerequisites
+
+- Python 3.10 or later
+- `Rocket_Telemetry_GUI/requirements.txt`
+- A Windows PC for the primarily validated configuration
+- A Bluetooth 4.0 or later adapter for Bluetooth LE operation, or a compatible serial interface for wired operation
+
+macOS and Linux may be supported but have not been formally validated. On those platforms, substitute `python3` for `python` if required.
+
+A Python virtual environment is optional. It may be used to isolate the dashboard dependencies from other Python projects.
+
+### Install Dependencies
+
+Open a terminal in `Rocket_Telemetry_GUI/` and run:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+The requirements file is expected to install the packages identified in the Desktop Software Stack, including Bleak, Matplotlib and pySerial. Pillow remains pending reviewer confirmation.
+
+If Matplotlib is missing after installation, install it separately as a troubleshooting step:
+
+```bash
+python -m pip install matplotlib
+```
+
+### Launch the Dashboard
+
+```bash
+python app.py
+```
+
+The desktop dashboard opens.
+
+### Connect over Bluetooth LE
+
+1. Select the literal GUI transport option **Bluetooth BLE**.
+2. Select **Scan BLE**.
+3. Choose `BLE_UART_DEMO` from the discovered devices.
+4. Select **Connect**.
+
+### Connect over Serial
+
+1. Connect the compatible serial interface to the WBZ451 hardware.
+2. Select the literal GUI transport option **COM Port**.
+3. Select **Scan COM**.
+4. Choose the appropriate COM port.
+5. Confirm that the baud rate is set to **115200**.
+6. Select **Connect**.
+
+## Running the Demonstration
+
+### Hardware Demonstration
+
+1. Power and program the WBZ451 Curiosity Development Board.
+2. Launch the desktop dashboard.
+3. Connect through Bluetooth LE or a serial COM port.
+4. Use **Raw On/Off**, **Chart On/Off** and **Altitude On/Off** to open the required views.
+5. Allow the sensor readings to stabilize.
+6. In the altitude window, select **Capture Start** to establish the launch-site baseline for relative altitude.
+7. Select **Start Log** to begin CSV recording.
+8. Select **Stop Log** to close the active log safely.
+
+Each logging session creates a new timestamped CSV file and does not overwrite existing logs.
+
+### Demo Mode: No Hardware Required
+
+Select **Demo Start** to run a simulated 20-second ascent, apogee and descent profile without connected hardware. Demo Mode exercises the raw-data view, strip charts, calculated-altitude view and logging workflow.
+
+## Expected Results
+
+When the system is operating correctly:
+
+- Complete telemetry frames appear in the raw-data view.
+- Pressure, temperature, AX, AY and AZ update in the five-channel strip chart.
+- The altitude view displays calculated relative altitude and tracks the peak value after the launch-site baseline is captured.
+- Active logging writes a CSV row for each accepted telemetry sample.
+- Incomplete or malformed frames are ignored until a complete valid frame is available.
+
+## Potential Applications
+
+The demonstrated architecture could be adapted for other sensor-telemetry applications. Additional engineering, validation and application-specific changes would be required.
+
+- **Rocket telemetry:** Monitor pressure, temperature, acceleration and calculated altitude during development tests.
+- **Drone and UAV telemetry:** Adapt the sensor and transport pipeline for airborne monitoring applications.
+- **Environmental monitoring:** Replace or extend the sensor set for remote environmental measurements.
+- **Industrial sensor monitoring:** Adapt the acquisition pipeline for machinery, equipment or process measurements.
+- **STEM and engineering education:** Use the project to explore embedded firmware, sensor interfaces, Bluetooth LE, serial communication and real-time visualization.
+
+## Troubleshooting
+
+| Issue | Checks |
+|---|---|
+| No sensor data | Verify the MPL3115A2 address `0x60`, FXLS8974 address `0x18`, I2C wiring, board pin assignments, power, ground, pull-ups and identity-register responses. |
+| COM port not available | Verify the USB connection, serial driver, port permissions and that no other application is using the port. |
+| Bluetooth LE device not found | Confirm that Bluetooth is enabled, the target is powered and advertising as `BLE_UART_DEMO`, and the operating system allows Bluetooth scanning. |
+| Connected but no data or plots | Confirm that the firmware is producing five numeric values in the expected field order and that complete frames are reaching the dashboard. |
+| Incorrect altitude | Allow pressure and temperature readings to stabilize, then use **Capture Start** to establish the launch-site baseline. |
+| Build errors after MCC or Harmony generation | Confirm that installed component versions match the project configuration. If required, reapply the documented idle-hook modification and verify `app_user_edits.c`. |
 
 ## Frequently Asked Questions
 
-**Q: Can I use a different BLE chip (nRF52, ESP32, CC2340)?**  
-A: Yes. The GUI is chip-agnostic. Any BLE device that sends the `<P,T,AX,AY,AZ\n\r>` frame format over a notify characteristic will work. The WBZ451's Transparent UART Profile maps cleanly to this because it exposes a standard notify characteristic for upstream data.
+**Can different sensors be used?**  
+Other sensors may be adaptable, but the required implementation changes depend on the selected sensor and firmware requirements.
 
-**Q: What Python version is required?**  
-A: Python 3.9 or later. Check: `python --version` in a terminal.
+**Can another Bluetooth LE device be used with the dashboard?**  
+Other Bluetooth LE devices may be adaptable. Compatibility depends on the implemented data service and telemetry format.
 
-**Q: Can I build a standalone Windows .exe so users don't need Python?**  
-A: Yes. A PyInstaller spec file (`app.spec`) is included. Run `pyinstaller app.spec` in the GUI folder to produce a single-file executable — no Python installation needed on the end-user machine.
+**What Python version is required?**  
+Python 3.10 or later.
 
-**Q: Can I replace the sensors with different I2C devices?**  
-A: Yes. Edit `app.c` in the firmware to initialise and read your sensors, then format the values into the same ASCII frame. No changes to the BLE stack or the GUI are needed as long as the frame format is preserved.
+**Can the dashboard be packaged as a standalone Windows executable?**  
+The repository includes `app.spec`, which may support a PyInstaller-based Windows executable. This packaging workflow still requires validation with the current dashboard and Python 3.10 or later.
 
-**Q: What is the BLE range of the WBZ451?**  
-A: Bluetooth 5.2 with 2M PHY typically achieves 50–100 m in open air. Switching to Coded PHY (S8) can extend range to several hundred metres at reduced throughput — useful for outdoor rocketry or HAB applications.
+**Can multiple telemetry sessions be logged?**  
+Yes. Multiple logging sessions are supported. See the CSV logging description for file-handling behavior.
 
-**Q: Can I log multiple flights in one GUI session?**  
-A: Yes. Each click of **Start Log** creates a new timestamped CSV file (e.g., `log_20261013_143022_001.csv`). Existing files are never overwritten.
+**Can serial connectivity be used instead of Bluetooth LE?**  
+Yes. The dashboard supports a serial COM-port workflow as an alternative to Bluetooth LE.
 
-**Q: Does the WBZ451 need an external BLE antenna?**  
-A: WBZ451-based modules typically include an integrated chip antenna or a u.FL connector for an external antenna. Check your specific module's datasheet for antenna options.
+## References
 
-**Q: How do I integrate this into an MQTT / cloud IoT pipeline?**  
-A: The Transparent UART Profile is a serial bridge. On the host side, replace the GUI with a Python script that publishes each parsed frame to an MQTT broker (e.g., AWS IoT Core, Azure IoT Hub, Mosquitto). The WBZ451 firmware requires no changes.
+- [PIC32 BZ2 Wireless Microcontrollers](https://www.microchip.com/en-us/products/microcontrollers/32-bit-mcus/pic32-sam/pic32-bz2)
+- [Microchip Multiprotocol Modules and SoCs](https://www.microchip.com/en-us/products/wireless-connectivity/multi-protocol)
+- [Microchip Bluetooth Low Energy Products](https://www.microchip.com/en-us/products/wireless-connectivity/bluetooth-low-energy)
+- [Python](https://www.python.org/)
 
----
-
-## Related Topics and SEO Keywords
-
-### Microchip / WBZ451 Ecosystem
-Microchip WBZ451 · PIC32-BZ2 · PIC32BZ · WBZ451 Curiosity Board · MPLAB Harmony 3 · MPLAB X IDE · XC32 compiler · Microchip BLE SDK · Transparent UART Profile · TRPS · BLE_TRSPS · Microchip wireless IoT · Microchip BLE 5.2 · Microchip FreeRTOS · Microchip sensor hub · Microchip SERCOM I2C · MPLAB Harmony wireless · PIC32 Bluetooth · WBZ351 · PIC32-BZ
-
-### Bluetooth Low Energy — Core Technical
-Bluetooth Low Energy · BLE 5.2 · Bluetooth 5 · 2M PHY · Coded PHY · LE Coded PHY · S2 coding · S8 coding · long-range BLE · extended range Bluetooth · GATT profile · GATT server · GATT client · BLE notify · BLE indicate · BLE advertising · BLE connection parameters · BLE MTU · BLE throughput · BLE latency · BLE security · BLE SMP · BLE pairing · BLE bonding · AES-128 BLE · BLE central · BLE peripheral · BLE broadcaster · multi-role BLE · multi-link BLE · BLE mesh · BLE Mesh networking · Bluetooth SIG · Bluetooth certification · BLE stack · NimBLE · host controller interface HCI · GATT characteristic · BLE service UUID · ATT protocol · L2CAP BLE
-
-### Sensors and Embedded
-MPL3115A2 · FXLS8974 · barometric pressure sensor · altimeter sensor · accelerometer I2C · 3-axis accelerometer · IMU Bluetooth · inertial measurement unit wireless · I2C sensor node · SERCOM I2C · embedded sensor hub · FreeRTOS sensor · real-time sensor acquisition · embedded telemetry
-
-### Data Streaming and Wireless Protocols
-BLE data streaming · real-time sensor data streaming · wireless data acquisition · UART to BLE · serial to Bluetooth · Transparent UART BLE · serial over BLE · wireless serial port · BLE to PC · BLE COM port replacement · BLE UART bridge · Python BLE · bleak Python · pyserial · BLE sensor to PC · wireless sensor interface · Bluetooth data logger
-
-### Altitude, Rocketry, and Flight
-rocket telemetry · model rocket data logger · high-power rocketry HPR · rocketry flight computer · amateur rocketry · barometric altitude · hypsometric formula · altitude from pressure · peak altitude tracking · apogee detection · rocket accelerometer · flight data recorder · NAR Tripoli rocketry · EX rocketry · two-stage rocket · rocket staging · recovery altimeter · ejection charge altimeter · COTS altimeter · GPS-free altitude
-
-### Drone and UAV
-drone telemetry · UAV sensor data link · unmanned aerial vehicle BLE · quadcopter sensor · fixed-wing UAV telemetry · drone flight data · IMU drone · barometric altitude drone · drone ground station · drone data acquisition · UAV ground control · sUAS sensors · FPV telemetry · MAVLink alternative
-
-### Industrial IoT and Industry 4.0
-industrial IoT · IIoT · Industry 4.0 · smart factory · predictive maintenance · condition monitoring · vibration monitoring · bearing vibration analysis · machine health monitoring · equipment monitoring IoT · industrial asset tracking · RTLS real-time location system · indoor positioning BLE · BLE beacon · proximity sensing · iBeacon · Eddystone · BLE gateway · IoT gateway · MQTT BLE bridge · OPC UA BLE · Modbus BLE · industrial wireless sensor · rugged wireless sensor · wireless I/O · BLE for SCADA
-
-### Environmental Monitoring
-environmental sensor · air quality monitoring · temperature humidity monitoring · weather station IoT · climate monitoring · precision agriculture IoT · greenhouse monitoring · cold-chain monitoring · food safety IoT · water quality sensor BLE · CO2 sensor wireless · particulate matter sensor wireless · indoor air quality IAQ
-
-### Wearable and Health
-wearable Bluetooth · BLE wearable · health monitoring wearable · fitness tracker BLE · smart band · fall detection sensor · activity monitoring · biometric sensor wireless · medical IoT · remote patient monitoring · BLE heart rate · BLE pulse oximeter · sports performance monitoring
-
-### Asset Tracking and Smart Building
-asset tracking Bluetooth · BLE asset tracker · warehouse inventory tracking · smart building IoT · HVAC monitoring BLE · occupancy sensing · energy monitoring IoT · access control BLE · smart lock Bluetooth · building automation BLE
-
-### Python and Developer Tools
-Python BLE · bleak library · pyserial · Python tkinter GUI · matplotlib real-time · Python data logger · Python sensor dashboard · Python COM port · Python async BLE · asyncio BLE · Python IoT · Python MQTT · Python CSV logger · PyInstaller executable
-
-### Competitor Comparison Keywords (Customers searching alternatives)
-WBZ451 vs nRF52840 · WBZ451 vs nRF5340 · Microchip BLE vs Nordic Semiconductor · PIC32 BLE vs ESP32 · WBZ451 vs TI CC2652 · WBZ451 vs Silicon Labs EFR32BG · best BLE SoC for IoT · best BLE microcontroller 2024 · BLE SoC comparison · nRF52 alternative · ESP32 BLE alternative · Nordic vs Microchip BLE · low-power BLE SoC comparison · industrial BLE SoC · easiest BLE development kit · BLE development board beginner · fastest UART to BLE migration · replace serial with BLE · UART to wireless migration
-
-### High-Altitude Balloon and Space
-high-altitude balloon HAB · weather balloon payload · stratospheric balloon · balloon telemetry · near-space payload · CubeSat sensor · CanSat · nanosatellite sensor · STEM aerospace project
-
-### Education and STEM
-STEM electronics project · university IoT project · embedded systems tutorial · BLE tutorial for beginners · wireless sensor network tutorial · real-time data visualisation Python · sensor data science · data acquisition system · electronics engineering project · Bluetooth project Arduino alternative · microcontroller wireless
-
----
-
-*© 2026 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text.*
+_© 2026 Microchip Technology Inc. and its subsidiaries. Firmware source files are subject to Microchip's standard software license. See individual source file headers for full license text._
